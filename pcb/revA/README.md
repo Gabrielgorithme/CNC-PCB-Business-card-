@@ -13,6 +13,7 @@ that cannot be settled on paper, is done by hand on the batch through the solder
 | `hybrid_card_revA_board.step` | 3D model of the board with its parts, in the card's CAD frame (see below). For the assembly with the aluminium half. |
 | `preview_front.jpg`, `preview_back.jpg`, `preview_front_lit.jpg` | Previews composited from KiCad's own layer plots. The back is shown as seen from the back. The lit view is a model, not a measurement. |
 | `hybrid_card_revA_BOM_JLC.csv`, `..._CPL_JLC.csv` | Assembly files in JLCPCB's column layout (draft). |
+| `order/` | What goes to JLCPCB: `hybrid_card_revA_gerbers.zip` (4 copper layers, masks, pastes, silkscreens, outline, one plated drill file: 87 x 0.3, 8 x 0.8, 2 x 2.1), the BOM and the placement file. Written by `make_order.py`. |
 | `decal_front.jpg`, `decal_back.jpg` | The same pictures cropped exactly to the board's bounding box (43.565 x 47.42 mm, 54 px/mm), to lay on the 3D model's faces. The back one is as seen from the back. |
 
 ## Geometry shared with the aluminium half (card frame, mm, origin = card top-left seen from the recto)

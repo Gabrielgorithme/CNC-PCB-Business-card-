@@ -10,3 +10,4 @@ rm -rf out/gg_card.pretty && cp -r gg_card.pretty out/
 python3 render.py
 python3 make_assembly.py
 python3 make_step.py
+python3 make_order.py
