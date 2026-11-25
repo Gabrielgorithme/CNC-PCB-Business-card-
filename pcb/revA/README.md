@@ -95,11 +95,8 @@ The stack-up in the board file is a nominal split that adds up to 1.20; the fab'
 - Rendered from the plots and looked at, front, back and lit.
 - 3D model against KiCad's own STEP export of the board: same bounding box, same thickness, outline area equal to the
   board file's polygon to 0.01 mm2. Volumes differ by 7 mm3, which is the vias.
-- Chip footprint against the reflow footprint figure for SOT902-3 in the NT3H2111_2211 data sheet (rev 3.6, fig. 32):
-  lands 0.40 x 0.22 centred 0.60 from the package centre on all four sides, 0.5 pitch along a side, occupied area
-  1.9 x 1.9. The footprint uses those lands with a 0.10 toe added outwards. The numbers were read from the figure's
-  text, not from the drawing itself; one detail of the pin 1 land (two values, 0.32 and 0.11) could not be placed.
-  The metal area under the centre of the package is not for soldering: nothing is routed or exposed there.
+- Chip footprint against figs. 31 (outline) and 32 (reflow footprint) of the NT3H2111_2211 data sheet, rev 3.6, looked at as
+  drawings: terminal order, land size and position, the wider pin 1 land, the paste pull-back and the bare centre all match.
 - Unused chip pins: SCL, SDA and FD are left open and VCC is not connected. NXP's support answers on their community
   forum say these may float when unused.
 - Part numbers (JLCPCB parts library, looked up 2026-11-25): U1 C710403, D1 C130719 (NationStar NCD0402R1, red),
@@ -116,7 +113,7 @@ the tag circuit pass, no shorts, no opens, no closed copper loop over the coil o
 |---|---|
 | Placement angles were KiCad's raw bottom-side values; JLCPCB reads the bottom mirrored | `make_assembly.py` writes 180 minus KiCad's angle |
 | No pin 1 mark for U1 on silk, D1's cathode dot too small to print | 0.4 dots beside U1 pin 1 and D1's cathode |
-| Pin 1 land and paste of U1 not confirmed against the drawing | Pin 1 land 0.08 shorter at its inner end, paste pulled back 0.025; harmless either way. Still open, see below |
+| Pin 1 land and paste of U1 not confirmed against the drawing | Redrawn from figs. 31 and 32 as seen: every land 0.40 x 0.22 at 0.60 from centre, the pin 1 land 0.32 wide with the extra 0.10 towards the corner, paste 0.025 inside each land. The 0.10 toe added earlier is gone |
 | Castellations: 0.15 ring, first hole 2.32 from the corner | Pads 1.3 high (0.25 ring), row moved down 0.7 (3.02 from the corner) |
 | A width clamp made every ladder line 0.15 | Ladders bypass the clamp |
 | Mask webs under 0.254 at the pin lands and in the BGA field | Ring ends pulled back from the pin lands (0.3 web); BGA field left, see above |
@@ -127,14 +124,12 @@ the tag circuit pass, no shorts, no opens, no closed copper loop over the coil o
 
 ## Before ordering
 
-1. **U1 pin 1 land.** Look at fig. 32 of the NT3H2111_2211 data sheet (rev 3.6): one dimension is given for seven lands
-   only, so the pin 1 land differs from the others. The footprint is safe under either reading, not confirmed.
-2. **Placement preview.** The angles are now converted for the bottom side, but JLCPCB also applies its own offset per
-   library part. In their preview, U1's pin 1 must sit by the silk dot at (65.31, 42.75) and D1's cathode by the dot at
+1. **Placement preview.** The angles are now converted for the bottom side, but JLCPCB also applies its own offset per
+   library part. In their preview, U1's pin 1 must sit by the silk dot at (65.40, 42.80) and D1's cathode by the dot at
    (63.71, 37.90), card frame.
-3. **Tooling holes.** Economic assembly may add tooling holes where JLCPCB chooses. Check that option, and the edge-rail
+2. **Tooling holes.** Economic assembly may add tooling holes where JLCPCB chooses. Check that option, and the edge-rail
    option, at quote.
-4. **LED direction.** A standard LED on the back shines away from the board. Whether enough light comes back into the
+3. **LED direction.** A standard LED on the back shines away from the board. Whether enough light comes back into the
    slot off the phone is what this coupon tests.
 
 ## Order options this design assumes
