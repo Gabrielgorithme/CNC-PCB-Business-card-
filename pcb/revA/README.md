@@ -21,7 +21,9 @@ Rev A is a real board in the real outline, with a few coupon-only features, mean
 - Board outline drawn 0.10 smaller than the nominal pocket per side, R1.0 on the corners that sit in the pocket.
   The pocket is meant to be machined to the delivered boards.
 - Two locating pins at R38, -24 deg and +22 deg: (53.71, 6.04) and (54.23, 35.74). Plated holes 2.10, lands 2.80.
-- The free edge stops 0.10 inside the card's edge (x = 85.50). No copper within 0.60 of any edge.
+- The free edge stops 0.10 inside the card's edge (x = 85.50).
+- Copper to edge: on the back, along the joint and the rims, nothing closer than 0.50 (the pin lands). On the front the
+  gold rings come to 0.36 and the edge fingers to 0.30 of the free edge.
 - How the board sits on the aluminium (seat, glue land, pins, heights) is in `cad/hybrid/README.md`.
 
 ## The tag
@@ -31,7 +33,8 @@ NT3H2111 (NTAG I2C plus, 50 pF input capacitance, energy-harvesting output). VOU
 Antenna: 7-turn rectangular spiral on the back, 14.1 x 29.2 mm, 0.20 track / 0.15 gap, placed against the board's free
 edge, away from the aluminium. Calculated free-air inductance 2.10 uH (`coil.py`, Greenhouse method; expect about 10 % error).
 
-It is deliberately tuned high. Three C0G capacitors sit behind solder bridges (bridge the two pads of JP1..JP3 with solder):
+It is deliberately tuned high. Three C0G capacitors sit behind solder bridges JP1..JP3: two bare pads 0.25 apart under one
+mask opening, no paste. A blob of solder closes one; wick opens it again.
 
 | Bridges closed | Added | Tunes this inductance to 13.56 MHz | Resonance if L = 2.10 uH |
 |---|---|---|---|
@@ -55,8 +58,12 @@ intended connections and still checks their clearances.
 
 ## Coupon-only features
 
-- Back, under the ledge once assembled: copper text at 0.5 / 0.6 / 0.7 / 0.8 / 1.0 mm and lines at 0.09 / 0.10 / 0.127 / 0.15 / 0.20 mm.
+- Back, under the ledge once assembled: copper text at 0.5 / 0.6 / 0.7 / 0.8 / 1.0 mm (strokes 0.09 to 0.11) and lines at
+  0.09 / 0.10 / 0.127 / 0.15 / 0.20 mm. These are the only strokes on the board below 0.14.
 - The top run of the antenna is left bare of mask, as a sample of exposed fine-pitch gold. The rest is under mask.
+  The mask webs between its tracks are 0.15, under JLCPCB's 0.254 for black mask: expect them gone. Mask it on the final
+  card: a finger on bare turns loads the coil.
+- BGA field: 0.4 lands and 0.6 vias leave 0.207 mask webs, also under 0.254. Left as it is to see what comes back.
 
 ## Vernier (back)
 
@@ -99,11 +106,35 @@ The stack-up in the board file is a nominal split that adds up to 1.20; the fab'
   R1 C25105 (33 ohm), C2 C16772 (220 nF X7R 16 V), C3 C1576 (6.8 pF C0G), C4 C1547 (12 pF C0G), C5 C1555 (22 pF C0G).
   Stock was not checked.
 
+## Audit (2026-11-25)
+
+An independent audit of the board file rebuilt the connectivity from the copper alone: all eight intended connections of
+the tag circuit pass, no shorts, no opens, no closed copper loop over the coil on any layer, inductance confirmed at
+2.09 to 2.10 uH by a second method. Its findings and what was done:
+
+| Finding | Done |
+|---|---|
+| Placement angles were KiCad's raw bottom-side values; JLCPCB reads the bottom mirrored | `make_assembly.py` writes 180 minus KiCad's angle |
+| No pin 1 mark for U1 on silk, D1's cathode dot too small to print | 0.4 dots beside U1 pin 1 and D1's cathode |
+| Pin 1 land and paste of U1 not confirmed against the drawing | Pin 1 land 0.08 shorter at its inner end, paste pulled back 0.025; harmless either way. Still open, see below |
+| Castellations: 0.15 ring, first hole 2.32 from the corner | Pads 1.3 high (0.25 ring), row moved down 0.7 (3.02 from the corner) |
+| A width clamp made every ladder line 0.15 | Ladders bypass the clamp |
+| Mask webs under 0.254 at the pin lands and in the BGA field | Ring ends pulled back from the pin lands (0.3 web); BGA field left, see above |
+| 0.10 ring on the 49 dog-bone vias | 0.6 pads (0.15 ring) |
+| "No copper within 0.6 of any edge" was not true | Statement corrected above |
+| Solder bridges were 0402 lands with paste and a mask dam | Proper open solder bridges |
+| "U1" label touched the layer-marker window | Moved |
+
 ## Before ordering
 
-1. **Placement rotations** in the CPL file are KiCad's raw values. Check U1 and D1 in JLCPCB's placement preview;
-   the passives are symmetric.
-2. **LED direction.** A standard LED on the back shines away from the board. Whether enough light comes back into the
+1. **U1 pin 1 land.** Look at fig. 32 of the NT3H2111_2211 data sheet (rev 3.6): one dimension is given for seven lands
+   only, so the pin 1 land differs from the others. The footprint is safe under either reading, not confirmed.
+2. **Placement preview.** The angles are now converted for the bottom side, but JLCPCB also applies its own offset per
+   library part. In their preview, U1's pin 1 must sit by the silk dot at (65.31, 42.75) and D1's cathode by the dot at
+   (63.71, 37.90), card frame.
+3. **Tooling holes.** Economic assembly may add tooling holes where JLCPCB chooses. Check that option, and the edge-rail
+   option, at quote.
+4. **LED direction.** A standard LED on the back shines away from the board. Whether enough light comes back into the
    slot off the phone is what this coupon tests.
 
 ## Order options this design assumes

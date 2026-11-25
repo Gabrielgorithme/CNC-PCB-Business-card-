@@ -33,7 +33,7 @@ EDGE_X = CARD_W - EDGE_RECESS
 SKIM = 0.02                   # ripple crests sit this far below the faced recto; the board's top face is at crest height
 SEAT_W = 0.50                 # dry seating land at the foot of the pocket wall, 0.10 inside the board's copper pull-back
 GLUE_GAP = 0.08               # the rest of the ledge is this much lower: bond line, and room for copper on the board's back
-COPPER_PULLBACK = 0.60        # no copper within this distance of the board edge
+COPPER_PULLBACK = 0.60        # centre lines of the artwork stay this far from the edge. Closest copper on the BACK along the joint and rims: the pin lands, 0.50
 PIN_D, PIN_B_FLATS = 2.00, 0.70   # pin A round; pin B is a blade across the line A-B (diamond pin): it takes +/-0.12 on the hole spacing
 PIN_TOP_BELOW, PIN_CHAMFER = 0.05, 0.15
 VERNIER_A0, VERNIER_STEP_PCB, VERNIER_STEP_ALU = 27.6, 1.35, 1.50   # degrees about the flexure centre, card frame
@@ -44,7 +44,7 @@ PIN_R, PIN_A, PIN_DRILL, PIN_PAD = 38.0, (-24.0, 22.0), 2.10, 2.80   # land 2.80
 BGA = (76.4, 11.2)
 FINGER_Y = [23.2 + 1.2 * j for j in range(12)]
 FINGER_X = 82.95               # centre of the 4.5 mm edge fingers: they end 0.30 from the free edge
-CAST_Y = [5.6 + 1.6 * i for i in range(8)]
+CAST_Y = [6.3 + 1.6 * i for i in range(8)]   # first hole 3.0 from the board corner, as JLCPCB asks for castellations
 COIL = dict(x0=70.7, y0=18.4, x1=84.8, y1=47.6, turns=7, pitch=0.35, w=0.20, end_y=40.2)
 COIL_END = (76.4, 40.2)       # inner end, where the antenna drops to layer 3
 MARKER = (56.5, 39.6, 62.1, 41.0)
@@ -100,9 +100,10 @@ def shapely_lines(g):
     if g.geom_type in ("MultiLineString", "GeometryCollection"): return [l for s in g.geoms for l in shapely_lines(s)]
     return []
 
-def gold(layer_cu, layer_mask, pts, w, expose=0.0):
-    """Copper left bare of solder mask: ENIG gold. The opening equals the copper (no bare FR-4 halo around it)."""
-    w = max(w, 0.15)
+def gold(layer_cu, layer_mask, pts, w, expose=0.0, min_w=0.15):
+    """Copper left bare of solder mask: ENIG gold. The opening equals the copper (no bare FR-4 halo around it).
+    Widths are held at 0.15 or more, except where min_w says otherwise (the coupon ladders, which exist to go below)."""
+    w = max(w, min_w)
     polyline(layer_cu, pts, w); polyline(layer_mask, pts, w + 2 * expose)
 
 # ----------------------------------------------------------------------------- lettering (ISOCP single line, as engraved)
@@ -140,8 +141,8 @@ def back_arc_text(r_base, a_mid, s, cap, track=0.0):
     cv = (CARD_W - SPR[0], SPR[1])
     return mirror_x(arc_text(r_base, 180.0 - a_mid, s, cap, track, c=cv))
 
-def gold_text(cu, mask, strokes, w):
-    for st in strokes: gold(cu, mask, st, w)
+def gold_text(cu, mask, strokes, w, min_w=0.15):
+    for st in strokes: gold(cu, mask, st, w, min_w=min_w)
 
 # ----------------------------------------------------------------------------- decorative copper as real nets
 # Every decorative trace with the pads it touches is one small net of its own ("ART_n"), so the design-rule check
@@ -194,7 +195,7 @@ def build():
         for st in text(0, CARD_H + 4 + i * 2.2, s, 1.2): polyline("Cmts.User", st, 0.12)
 
     keep = BOARD.buffer(-0.6)                      # copper pull-back from the routed edge (0.3 clear of the stroke edge)
-    pin_ko = circle(PINS[0], PIN_PAD / 2 + 0.4, 32).union(circle(PINS[1], PIN_PAD / 2 + 0.4, 32))
+    pin_ko = circle(PINS[0], PIN_PAD / 2 + 0.55, 32).union(circle(PINS[1], PIN_PAD / 2 + 0.55, 32))   # leaves a 0.3 mask web to the ring ends
 
     # ---- gold rings: the ripples carried on, 2 mm apart like the crests; relief rings in between (copper under mask)
     upper = keep.intersection(box(0, 0, CARD_W, BAND_Y - 0.6)).difference(pin_ko)
@@ -235,10 +236,10 @@ def build():
     # ---- BGA land pattern with dog-bone fan-out
     bx, by = BGA
     for j in range(8):
-        for i in range(8): smd_pad((bx - 3.5 + i, by - 3.5 + j), 0.5, 0.5, '"F.Cu" "F.Mask"')
+        for i in range(8): smd_pad((bx - 3.5 + i, by - 3.5 + j), 0.4, 0.4, '"F.Cu" "F.Mask"')   # 0.4 lands + 0.6 vias: 0.207 mask web between them
     for j in range(7):
         for i in range(7):
-            th_pad((bx - 3.0 + i, by - 3.0 + j), 0.5, 0.3)
+            th_pad((bx - 3.0 + i, by - 3.0 + j), 0.6, 0.3)
             art_trace([(bx - 3.5 + i, by - 3.5 + j), (bx - 3.0 + i, by - 3.0 + j)], 0.11, (bx - 3.5 + i, by - 3.5 + j), (bx - 3.0 + i, by - 3.0 + j))
     for i in range(8):                                   # top row escapes to staggered vias
         x = bx - 3.5 + i; y = 6.3 if i % 2 == 0 else 5.5
@@ -248,7 +249,7 @@ def build():
         th_pad((vx, y), 0.6, 0.3); art_trace([(bx - 3.5, y), (vx, y)], 0.13, (bx - 3.5, y), (vx, y))
     for i, cy in enumerate(CAST_Y):                      # castellated half-holes on the free edge
         py = by - 3.5 + i; dy = py - cy
-        th_pad((EDGE_X, cy), 1.1, 0.8, "roundrect", 2.2)
+        th_pad((EDGE_X, cy), 1.3, 0.8, "roundrect", 2.2)      # 0.25 ring around the half-hole
         art_trace([(EDGE_X - 1.0, cy), (83.2, cy), (83.2 - abs(dy), py), (bx + 3.5, py)], 0.15, (EDGE_X, cy), (bx + 3.5, py))
 
     # ---- edge fingers (front), bus to the bottom row, length-tuning meanders to test points
@@ -291,9 +292,9 @@ def build():
     # coupon only, hidden under the ledge once assembled: text-height and line-width ladders
     a = -13.0
     for cap in (0.5, 0.6, 0.7, 0.8, 1.0):
-        gold_text("B.Cu", "B.Mask", back_arc_text(37.2, a, f"{cap:.1f}", cap, 0.1), max(0.09, cap / 9)); a += 3.2
+        gold_text("B.Cu", "B.Mask", back_arc_text(37.2, a, f"{cap:.1f}", cap, 0.1), max(0.09, cap / 9), min_w=0); a += 3.2
     for i, w in enumerate((0.09, 0.10, 0.127, 0.15, 0.20)):
-        gold("B.Cu", "B.Mask", [pol(37.0 + 1.6 * t / 8, 3.0 + i * 1.3) for t in range(9)], w)
+        gold("B.Cu", "B.Mask", [pol(37.0 + 1.6 * t / 8, 3.0 + i * 1.3) for t in range(9)], w, min_w=0)
     gold_text("B.Cu", "B.Mask", back_arc_text(37.2, 14.5, "REV A", 0.7, 0.15), 0.1)
     # vernier across the ledge's edge, read from the back: these ticks are 1.35 deg apart, the ones engraved on the
     # aluminium 1.50 deg apart; ten of these span nine of those, so one step of coincidence is 0.15 deg = 0.1 mm at R40
@@ -301,7 +302,7 @@ def build():
         a = VERNIER_A0 + i * VERNIER_STEP_PCB
         gold("B.Cu", "B.Mask", [pol(R_JOINT + LEDGE + 0.5, a), pol(R_JOINT + LEDGE + 0.5 + (1.5 if i % 5 == 0 else 1.0), a)], 0.12)
     # silkscreen (back)
-    for (x, y, s) in ((62.9, 42.0, "U1"), (62.4, 37.6, "D1"), (88.0, 0, "")):
+    for (x, y, s) in ((62.9, 42.35, "U1"), (62.4, 37.6, "D1"), (88.0, 0, "")):
         if s:
             for st in text(x, y, s, 1.0, "start", mirror=True): polyline("B.SilkS", st, 0.15)
     for st in text(79.0, 49.05, "ANT1", 1.0, "start", mirror=True): polyline("B.SilkS", st, 0.15)

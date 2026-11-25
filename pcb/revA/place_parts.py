@@ -19,9 +19,9 @@ PARTS = {
     "C3": (LIB / "Capacitor_SMD.pretty", "C_0402_1005Metric", "6.8p C0G", (63.6, 44.2), "C1576", True),
     "C4": (LIB / "Capacitor_SMD.pretty", "C_0402_1005Metric", "12p C0G", (63.6, 45.4), "C1547", True),
     "C5": (LIB / "Capacitor_SMD.pretty", "C_0402_1005Metric", "22p C0G", (63.6, 46.6), "C1555", True),
-    "JP1": (LIB / "Resistor_SMD.pretty", "R_0402_1005Metric", "solder bridge", (66.6, 44.2), None, False),
-    "JP2": (LIB / "Resistor_SMD.pretty", "R_0402_1005Metric", "solder bridge", (66.6, 45.4), None, False),
-    "JP3": (LIB / "Resistor_SMD.pretty", "R_0402_1005Metric", "solder bridge", (66.6, 46.6), None, False),
+    "JP1": (HERE / "gg_card.pretty", "SolderBridge_2_Pad0.7x0.8mm_Gap0.25mm", "solder bridge", (66.6, 44.2), None, False),
+    "JP2": (HERE / "gg_card.pretty", "SolderBridge_2_Pad0.7x0.8mm_Gap0.25mm", "solder bridge", (66.6, 45.4), None, False),
+    "JP3": (HERE / "gg_card.pretty", "SolderBridge_2_Pad0.7x0.8mm_Gap0.25mm", "solder bridge", (66.6, 46.6), None, False),
 }
 V_IN, V_B, V_G1, V_G2 = G.COIL_END, (69.9, 40.2), (69.0, 39.4), (63.6, 39.4)
 
@@ -99,6 +99,10 @@ def main(src, dst):
         track("ANT_A", [(XA, pad(c, 1)[1]), pad(c, 1)], 0.2)
         track(n, [pad(c, 2), pad(j, 1)], 0.2)
         track("ANT_B", [pad(j, 2), (XBUS, pad(j, 2)[1])], 0.2)
+    # orientation marks the fab's reviewer can check the placement against: a dot beside U1 pin 1, a dot beside D1's cathode
+    for p in ((u[1][0] - 0.6, u[1][1] + 0.65), (dK[0] - 0.7, dK[1])):
+        s = pcbnew.PCB_SHAPE(b); s.SetShape(pcbnew.SHAPE_T_CIRCLE); s.SetLayer(pcbnew.B_SilkS)
+        s.SetCenter(V(p)); s.SetEnd(V((p[0] + 0.1, p[1]))); s.SetWidth(mm(0.2)); b.Add(s)        # radius 0.1 + stroke 0.2 = a solid dot of 0.4
     pcbnew.SaveBoard(str(dst), b)
     for ref in fps:
         print(ref, PARTS[ref][2], [(n.GetNumber(), round(pad(ref, n.GetNumber())[0], 2), round(pad(ref, n.GetNumber())[1], 2), n.GetNetname()) for n in fps[ref].Pads()][:8])

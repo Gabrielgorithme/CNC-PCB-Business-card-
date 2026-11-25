@@ -21,7 +21,7 @@ Z = 0 the verso (datum A), Z = 1.70 the faced recto.
 
 1. **Height: one dry seat.** A land 0.50 wide runs along the foot of the pocket wall, on all three sides. The board
    rests on it, metal to solder mask, with no glue in between, so the step you see at the joint depends on one
-   machined depth and nothing else. The board keeps its copper 0.60 from its edge, so the seat always meets flat mask.
+   machined depth and nothing else. On its back the board has no copper within 0.50 of those edges, so the seat always meets flat mask.
 2. **Glue: its own land.** The rest of the ledge is 0.08 lower. That is the bond line, and it clears the copper on the
    board's back (text ladders, pin lands). Excess runs towards the window, where it can be wiped from the back,
    not towards the joint.

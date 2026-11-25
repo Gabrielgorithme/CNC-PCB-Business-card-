@@ -24,6 +24,7 @@ with open(OUT / "hybrid_card_revA_CPL_JLC.csv", "w", newline="") as fh:
     w = csv.writer(fh); w.writerow(["Designator", "Mid X", "Mid Y", "Layer", "Rotation"])
     for r in rows:
         if r["Ref"].startswith(SKIP): continue
-        w.writerow([r["Ref"], r["PosX"], r["PosY"], "Bottom", r["Rot"]])
+        # JLCPCB reads a bottom-side angle mirrored: 180 minus the angle KiCad reports (its own per-part offsets come on top; see the README)
+        w.writerow([r["Ref"], r["PosX"], r["PosY"], "Bottom", "%.1f" % ((180.0 - float(r["Rot"])) % 360.0)])
 pos.unlink()
 print(open(OUT / "hybrid_card_revA_BOM_JLC.csv").read()); print(open(OUT / "hybrid_card_revA_CPL_JLC.csv").read())
