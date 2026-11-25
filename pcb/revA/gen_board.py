@@ -36,6 +36,7 @@ GLUE_GAP = 0.08               # the rest of the ledge is this much lower: bond l
 COPPER_PULLBACK = 0.60        # centre lines of the artwork stay this far from the edge. Closest copper on the BACK along the joint and rims: the pin lands, 0.50
 PIN_D, PIN_B_FLATS = 2.00, 0.70   # pin A round; pin B is a blade across the line A-B (diamond pin): it takes +/-0.12 on the hole spacing
 PIN_TOP_BELOW, PIN_CHAMFER = 0.05, 0.15
+JLC_ROT = 123.0
 VERNIER_A0, VERNIER_STEP_PCB, VERNIER_STEP_ALU = 27.6, 1.35, 1.50   # degrees about the flexure centre, card frame
 BAND_Y = 38.4
 SLOT_R, SLOT_HW, SLOT_A = 48.0, 1.3, (-18.0, 17.0)
@@ -155,8 +156,9 @@ def _find(k):
     return k
 def _join(a, b): _parent[_find(_key(a))] = _find(_key(b))
 
-def th_pad(c, size, drill, shape="circle", w=None):
-    ART_PADS.append((_key(c), f'thru_hole {shape} (at {c[0]:.4f} {c[1]:.4f}) (size {w or size} {size}) (drill {drill}) (layers "*.Cu" "*.Mask")' + (' (roundrect_rratio 0.25)' if shape == "roundrect" else '')))
+def th_pad(c, size, drill, shape="circle", w=None, tented=False):
+    """tented=True leaves the pad under solder mask on both faces: a ridge, not gold."""
+    ART_PADS.append((_key(c), f'thru_hole {shape} (at {c[0]:.4f} {c[1]:.4f}) (size {w or size} {size}) (drill {drill}) (layers "*.Cu"{"" if tented else " " + chr(34) + "*.Mask" + chr(34)})' + (' (roundrect_rratio 0.25)' if shape == "roundrect" else '')))
     _find(_key(c))
 
 def smd_pad(c, w, h, layers, shape="circle", rr=0.5):
@@ -236,10 +238,10 @@ def build():
     # ---- BGA land pattern with dog-bone fan-out
     bx, by = BGA
     for j in range(8):
-        for i in range(8): smd_pad((bx - 3.5 + i, by - 3.5 + j), 0.4, 0.4, '"F.Cu" "F.Mask"')   # 0.4 lands + 0.6 vias: 0.207 mask web between them
+        for i in range(8): smd_pad((bx - 3.5 + i, by - 3.5 + j), 0.5, 0.5, '"F.Cu" "F.Mask"')
     for j in range(7):
         for i in range(7):
-            th_pad((bx - 3.0 + i, by - 3.0 + j), 0.6, 0.3)
+            th_pad((bx - 3.0 + i, by - 3.0 + j), 0.6, 0.3, tented=True)    # as on a real BGA: lands in gold, dog-bones and vias under mask. No mask web under 0.5 anywhere in the field
             art_trace([(bx - 3.5 + i, by - 3.5 + j), (bx - 3.0 + i, by - 3.0 + j)], 0.11, (bx - 3.5 + i, by - 3.5 + j), (bx - 3.0 + i, by - 3.0 + j))
     for i in range(8):                                   # top row escapes to staggered vias
         x = bx - 3.5 + i; y = 6.3 if i % 2 == 0 else 5.5
@@ -292,15 +294,18 @@ def build():
     # coupon only, hidden under the ledge once assembled: text-height and line-width ladders
     a = -13.0
     for cap in (0.5, 0.6, 0.7, 0.8, 1.0):
-        gold_text("B.Cu", "B.Mask", back_arc_text(37.2, a, f"{cap:.1f}", cap, 0.1), max(0.09, cap / 9), min_w=0); a += 3.2
-    for i, w in enumerate((0.09, 0.10, 0.127, 0.15, 0.20)):
-        gold("B.Cu", "B.Mask", [pol(37.0 + 1.6 * t / 8, 3.0 + i * 1.3) for t in range(9)], w, min_w=0)
+        gold_text("B.Cu", "B.Mask", back_arc_text(37.2, a, f"{cap:.1f}", cap, 0.1), max(0.10, cap / 9), min_w=0.10); a += 3.2
+    for i, w in enumerate((0.10, 0.127, 0.15, 0.20, 0.25)):
+        gold("B.Cu", "B.Mask", [pol(37.0 + 1.6 * t / 8, 3.0 + i * 1.3) for t in range(9)], w, min_w=0.10)
     gold_text("B.Cu", "B.Mask", back_arc_text(37.2, 14.5, "REV A", 0.7, 0.15), 0.1)
     # vernier across the ledge's edge, read from the back: these ticks are 1.35 deg apart, the ones engraved on the
     # aluminium 1.50 deg apart; ten of these span nine of those, so one step of coincidence is 0.15 deg = 0.1 mm at R40
     for i in range(11):
         a = VERNIER_A0 + i * VERNIER_STEP_PCB
         gold("B.Cu", "B.Mask", [pol(R_JOINT + LEDGE + 0.5, a), pol(R_JOINT + LEDGE + 0.5 + (1.5 if i % 5 == 0 else 1.0), a)], 0.12)
+    # where the fab may print its order number: hidden under the ledge. Order with "specify position" for that mark.
+    c = pol(38.2, 33.0)
+    for st in text(c[0], c[1], "JLCJLCJLCJLC", 0.9, "middle", rot=JLC_ROT, mirror=True): polyline("B.SilkS", st, 0.15)
     # silkscreen (back)
     for (x, y, s) in ((62.9, 42.35, "U1"), (62.4, 37.6, "D1"), (88.0, 0, "")):
         if s:
@@ -317,10 +322,7 @@ def build():
            '    (net_tie_pad_groups "1, 2")']
     for p, q in zip(pts, pts[1:]):
         ant.append(f'    (fp_line (start {p[0]:.4f} {p[1]:.4f}) (end {q[0]:.4f} {q[1]:.4f}) (stroke (width {COIL["w"]}) (type solid)) (layer "B.Cu") (tstamp {uid()}))')
-    # coupon: the top run of the antenna is left bare of mask, to see what exposed fine-pitch gold looks like
-    for p, q in zip(pts, pts[1:]):
-        if abs(p[1] - q[1]) < 1e-6 and p[1] < COIL["y0"] + COIL["turns"] * COIL["pitch"] + 0.01 and q[0] > p[0]:
-            line("B.Mask", p, q, COIL["w"])
+    # the whole antenna stays under mask: bare turns would be loaded by a finger and leave 0.15 mask webs
     ant.append(f'    (pad "1" smd circle (at {pts[0][0]:.4f} {pts[0][1]:.4f}) (size 0.2 0.2) (layers "B.Cu") (tstamp {uid()}))')
     ant.append(f'    (pad "2" smd circle (at {COIL_END[0]:.4f} {COIL_END[1]:.4f}) (size 0.2 0.2) (layers "B.Cu") (tstamp {uid()}))')
     ant.append('  )')

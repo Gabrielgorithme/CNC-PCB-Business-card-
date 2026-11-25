@@ -1,7 +1,8 @@
-# Hybrid card, PCB half, rev A (first article / test coupon)
+# Hybrid card, PCB half, rev A
 
 The board half of the B2 "Wavefront" card, generated from the same numbers as the mockup in `design/hybrid/`.
-Rev A is a real board in the real outline, with a few coupon-only features, meant to answer what the mockup cannot.
+Rev A is ordered as the production batch (20 to 40 cards), not as a test coupon first: antenna tuning, the one thing
+that cannot be settled on paper, is done by hand on the batch through the solder bridges.
 
 ## What is in `out/`
 
@@ -56,14 +57,14 @@ The BGA land pattern, fan-out, castellations, edge fingers, meanders and test po
 Each trace with the pads it touches is its own small net (`ART_1` ... `ART_68`), so the design-rule check treats them as
 intended connections and still checks their clearances.
 
-## Coupon-only features
+## Hidden under the ledge (back)
 
-- Back, under the ledge once assembled: copper text at 0.5 / 0.6 / 0.7 / 0.8 / 1.0 mm (strokes 0.09 to 0.11) and lines at
-  0.09 / 0.10 / 0.127 / 0.15 / 0.20 mm. These are the only strokes on the board below 0.14.
-- The top run of the antenna is left bare of mask, as a sample of exposed fine-pitch gold. The rest is under mask.
-  The mask webs between its tracks are 0.15, under JLCPCB's 0.254 for black mask: expect them gone. Mask it on the final
-  card: a finger on bare turns loads the coil.
-- BGA field: 0.4 lands and 0.6 vias leave 0.207 mask webs, also under 0.254. Left as it is to see what comes back.
+- Copper text at 0.5 / 0.6 / 0.7 / 0.8 / 1.0 mm and lines at 0.10 / 0.127 / 0.15 / 0.20 / 0.25 mm: a record of what this
+  fab resolves, for the next board. Nothing on the board is under 0.10.
+- `JLCJLCJLCJLC` on silk at R38, 33 deg: where the fab may print its order number.
+
+Nothing on the board is left to chance against the fab's limits any more: the antenna is fully under mask, and in the BGA
+field the lands are gold while the dog-bone vias stay under mask, as on a real BGA, so no mask web there is under 0.4.
 
 ## Vernier (back)
 
@@ -116,7 +117,7 @@ the tag circuit pass, no shorts, no opens, no closed copper loop over the coil o
 | Pin 1 land and paste of U1 not confirmed against the drawing | Redrawn from figs. 31 and 32 as seen: every land 0.40 x 0.22 at 0.60 from centre, the pin 1 land 0.32 wide with the extra 0.10 towards the corner, paste 0.025 inside each land. The 0.10 toe added earlier is gone |
 | Castellations: 0.15 ring, first hole 2.32 from the corner | Pads 1.3 high (0.25 ring), row moved down 0.7 (3.02 from the corner) |
 | A width clamp made every ladder line 0.15 | Ladders bypass the clamp |
-| Mask webs under 0.254 at the pin lands and in the BGA field | Ring ends pulled back from the pin lands (0.3 web); BGA field left, see above |
+| Mask webs under 0.254 at the pin lands and in the BGA field | Ring ends pulled back from the pin lands (0.3 web); dog-bone vias now under mask |
 | 0.10 ring on the 49 dog-bone vias | 0.6 pads (0.15 ring) |
 | "No copper within 0.6 of any edge" was not true | Statement corrected above |
 | Solder bridges were 0402 lands with paste and a mask dam | Proper open solder bridges |
@@ -134,7 +135,16 @@ the tag circuit pass, no shorts, no opens, no closed copper loop over the coil o
 
 ## Order options this design assumes
 
-4 layers, 1.2 mm, black mask, ENIG, castellated holes: yes.
+| Option | Choice |
+|---|---|
+| Layers, thickness | 4 layers, 1.2 mm |
+| Solder mask, finish | Black, ENIG |
+| Castellated holes | Yes |
+| Outline tolerance | The precision option (+/-0.1) if offered |
+| Mark on PCB (order number) | "Specify position": the `JLCJLCJLCJLC` text is under the ledge. Or pay to remove the mark |
+| Confirm production file / parts placement | Yes to both: this is where a rotated U1 or D1 gets caught |
+| Assembly | Bottom side only; JP1..JP3 are not parts |
+| Panel, rails, tooling holes | The curved edge and the castellated edge must stay clean. If the fab needs tabs or mouse-bites, ask for them on the two straight edges only (y = 3.28 and y = 50.70) |
 
 ## Rebuild
 
