@@ -57,6 +57,11 @@ intended connections and still checks their clearances.
 - Back, under the ledge once assembled: copper text at 0.5 / 0.6 / 0.7 / 0.8 / 1.0 mm and lines at 0.09 / 0.10 / 0.127 / 0.15 / 0.20 mm.
 - The top run of the antenna is left bare of mask, as a sample of exposed fine-pitch gold. The rest is under mask.
 
+## Vernier (back)
+
+Eleven gold ticks 1.35 deg apart just outside the ledge's edge, facing eleven ticks 1.50 deg apart engraved on the aluminium.
+One step of coincidence is 0.1 mm at R40.
+
 ## 3D model
 
 `hybrid_card_revA_board.step` uses the same frame as `cad/build_card.py`: X along the long edge, Y up as seen from the

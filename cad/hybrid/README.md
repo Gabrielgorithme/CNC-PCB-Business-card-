@@ -1,15 +1,16 @@
 # Hybrid card, aluminium half, rev A
 
-Machining geometry of the aluminium half (no engraving yet) and its assembly with the board from `pcb/revA/`.
+The aluminium half, as machining geometry and as an engraved visual model, and its assembly with the board from `pcb/revA/`.
 Every interface number lives in `pcb/revA/gen_board.py`; the board and the aluminium are both drawn from it.
 
 | File | What it is |
 |---|---|
 | `hybrid_card_revA_alu.step` | The aluminium half: outline, ripple field, flexure, hole, pocket, pins. |
-| `hybrid_card_revA_assembly.step` | Aluminium + board + parts, in place. For Fusion. |
+| `hybrid_card_revA_alu_engraved.step` | The same body with the mock-up's engraving cut 0.15 into the recto and 0.10 into the verso. A visual model: the real engraving is V-cut along the centre lines. Not in the repository (21 MB); `python3 build_alu.py --engrave` writes it. |
+| `hybrid_card_revA_assembly.step` | Aluminium (engraved) + board + parts, in place. For Fusion. Not in the repository either, same command. |
 | `hybrid_card_revA_fit_gauge.step` | The pocket alone (no ripples, no flexure). Cut it in scrap first and try the boards in it. |
 | `interface.png` | The interface in plan and in section. |
-| `build_alu.py`, `interface_figure.py` | The generators. `build_alu.py` also measures the fit on the two solids. |
+| `build_alu.py`, `engrave.py`, `interface_figure.py` | The generators. `build_alu.py` also measures the fit on the two solids; `engrave.py` reads the engraving back from the mock-up in `design/hybrid/concept_b2.py`. |
 
 Frame: X along the long edge, Y up as seen from the recto, origin at the card's bottom-left corner,
 Z = 0 the verso (datum A), Z = 1.70 the faced recto.
@@ -69,7 +70,11 @@ are 0.50 tall: their lowest face is at seat − 0.50, i.e. 0.02 below the verso 
 - Tune the antenna (solder bridges, see `pcb/revA/README.md`) with the board seated on the pins, before gluing.
   The bridges stay reachable through the window afterwards.
 
-## Not in this model yet
+## Engraving
 
-Engraving, recto and verso. The verso mock-up carries the note "LEDGE 4 × 0.50 ±0.02"; with the ledge now cut
-to the boards, that note should become the thing that is actually held: the step between board and aluminium.
+Taken from the B2 mock-up, so the model and the picture cannot disagree. Two things changed with the interface:
+
+- The note "LEDGE 4 x 0.50 +/-0.02" became "BOARD FLUSH 0/-0.05": the ledge is cut to the boards, the step is what is held.
+- The vernier now exists on both halves. Eleven ticks 1.50 deg apart on the underside of the ledge, eleven gold ticks
+  1.35 deg apart on the back of the board, from 27.6 deg about the flexure centre. One step of coincidence is 0.1 mm at R40,
+  so the back of the card shows how well the pins did their job.

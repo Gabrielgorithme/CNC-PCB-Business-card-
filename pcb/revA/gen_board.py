@@ -36,6 +36,7 @@ GLUE_GAP = 0.08               # the rest of the ledge is this much lower: bond l
 COPPER_PULLBACK = 0.60        # no copper within this distance of the board edge
 PIN_D, PIN_B_FLATS = 2.00, 0.70   # pin A round; pin B is a blade across the line A-B (diamond pin): it takes +/-0.12 on the hole spacing
 PIN_TOP_BELOW, PIN_CHAMFER = 0.05, 0.15
+VERNIER_A0, VERNIER_STEP_PCB, VERNIER_STEP_ALU = 27.6, 1.35, 1.50   # degrees about the flexure centre, card frame
 BAND_Y = 38.4
 SLOT_R, SLOT_HW, SLOT_A = 48.0, 1.3, (-18.0, 17.0)
 FENCE_R = 50.6
@@ -294,6 +295,11 @@ def build():
     for i, w in enumerate((0.09, 0.10, 0.127, 0.15, 0.20)):
         gold("B.Cu", "B.Mask", [pol(37.0 + 1.6 * t / 8, 3.0 + i * 1.3) for t in range(9)], w)
     gold_text("B.Cu", "B.Mask", back_arc_text(37.2, 14.5, "REV A", 0.7, 0.15), 0.1)
+    # vernier across the ledge's edge, read from the back: these ticks are 1.35 deg apart, the ones engraved on the
+    # aluminium 1.50 deg apart; ten of these span nine of those, so one step of coincidence is 0.15 deg = 0.1 mm at R40
+    for i in range(11):
+        a = VERNIER_A0 + i * VERNIER_STEP_PCB
+        gold("B.Cu", "B.Mask", [pol(R_JOINT + LEDGE + 0.5, a), pol(R_JOINT + LEDGE + 0.5 + (1.5 if i % 5 == 0 else 1.0), a)], 0.12)
     # silkscreen (back)
     for (x, y, s) in ((62.9, 42.0, "U1"), (62.4, 37.6, "D1"), (88.0, 0, "")):
         if s:

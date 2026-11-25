@@ -191,14 +191,14 @@ def verso():
     a.append(P(f"M{sx-65},{sy+113} L{sx-72},{sy+140} H{sx-168}", 1.2)); a.append(arrow(sx - 65, sy + 113, -104))
     a.append(T(sx - 74, sy + 135, "Ø26 ±0.05", 1.1, ENG, "end"))
     # joint notes + vernier (1.50 deg engraved against 1.35 deg etched = 0.1 mm at the joint)
-    a.append(T(306, 349, "JOINT R36 = 18TH RIPPLE", 0.7, ENG, "start", 0.14)); a.append(T(308, 363, "LEDGE 4 × 0.50 ±0.02", 0.7, ENG, "start", 0.14))
-    va = 154.0; top = ""
+    a.append(T(306, 349, "JOINT R36 = 18TH RIPPLE", 0.7, ENG, "start", 0.14)); a.append(T(308, 363, "BOARD FLUSH 0/-0.05", 0.7, ENG, "start", 0.14))
+    va = 152.4; top = ""        # 27.6 deg in the card frame: clear of the layer marker and of the rim ledge
     for i in range(11):
         A = math.radians(va - i * 1.5); L = 20 if i % 5 == 0 else 12
         a.append(P(f"M{sx+(RL-4)*math.cos(A):.1f},{sy+(RL-4)*math.sin(A):.1f} L{sx+(RL-4-L)*math.cos(A):.1f},{sy+(RL-4-L)*math.sin(A):.1f}", 1.1, ENG))
         B = math.radians(va - i * 1.35)
-        top += P(f"M{sx+(RL+5)*math.cos(B):.1f},{sy+(RL+5)*math.sin(B):.1f} L{sx+(RL+5+L)*math.cos(B):.1f},{sy+(RL+5+L)*math.sin(B):.1f}", 1.2, GOLD)
-    a.append(arc_text(sx, sy, RL - 30, 146.5, "VERNIER 0.1 MM", 0.66, ENG2, 0.12, wt=1.0, inward=True))
+        top += P(f"M{sx+(RL+5)*math.cos(B):.1f},{sy+(RL+5)*math.sin(B):.1f} L{sx+(RL+5+L*.75)*math.cos(B):.1f},{sy+(RL+5+L*.75)*math.sin(B):.1f}", 1.2, GOLD)
+    a.append(arc_text(sx, sy, RL - 30, 144.9, "VERNIER 0.1 MM", 0.66, ENG2, 0.12, wt=1.0, inward=True))
     # G-code excerpt
     for i, ln in enumerate(["O2027 (GG CARD OP2)", "G21 G90 G17 G54", "T405 M6 (D1 2FL)", "S24000 M3", "G0 X26.6 Y15.8", "G1 Z-1.25 F120", "G3 X38.4 Y22. I-6.1", "   J9.4 F480", "(... 2847 BLOCKS)"]):
         a.append(T(402, 380 + i * 12.4, ln, 0.67, ENG, "start", 0.05, wt=1.0))

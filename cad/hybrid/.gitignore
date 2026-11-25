@@ -1,2 +1,5 @@
 __pycache__/
 *_t1.*.step
+# large and regenerable: python3 build_alu.py --engrave
+*_engraved.step
+*_assembly.step

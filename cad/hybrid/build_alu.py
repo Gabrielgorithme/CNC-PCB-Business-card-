@@ -89,6 +89,36 @@ def build(board_t=G.BOARD_T, ripple=True):
     return card.clean(), pins, z
 
 
+ENGRAVE_RECTO, ENGRAVE_VERSO = 0.15, 0.10      # as on v1
+
+
+def to_solids(region, z0, z1):
+    solids = []
+    for p in (region.geoms if hasattr(region, "geoms") else [region]):
+        p = p.simplify(0.01)
+        for q in ([p] if p.geom_type == "Polygon" else getattr(p, "geoms", [])):
+            if q.is_empty or q.area < 1e-4: continue
+            mk = lambda ring: cq.Wire.makePolygon([cq.Vector(x, y, z0) for x, y in list(ring.coords)[:-1]], close=True)
+            try:
+                face = cq.Face.makeFromWires(mk(q.exterior), [mk(r) for r in q.interiors])
+                solids.append(cq.Solid.extrudeLinear(face, cq.Vector(0, 0, z1 - z0)))
+            except Exception as e:
+                print("  skipped a sliver:", e)
+    return solids
+
+
+def engraved(card, chunk=120):
+    """The same body with the mock-up's engraving cut into both faces: a visual model, not machining geometry
+    (the real engraving is V-cut along the centre lines)."""
+    import engrave
+    recto, verso = engrave.faces()
+    print("engraving: recto %.1f mm2, verso %.1f mm2" % (recto.area, verso.area))
+    solids = to_solids(recto, T - ENGRAVE_RECTO, T + 0.5) + to_solids(verso, -0.5, ENGRAVE_VERSO)
+    for i in range(0, len(solids), chunk):
+        card = card.cut(cq.Compound.makeCompound(solids[i:i + chunk]))
+    return card
+
+
 def checks(alu, pins, z, board_t):
     """Fit of the two solids. Distances in mm; everything is measured on the models, nothing is assumed."""
     B.Z0 = z["seat"]; B.Z_TOP = z["top"]
@@ -118,23 +148,31 @@ def checks(alu, pins, z, board_t):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(); ap.add_argument("--board-t", type=float, default=G.BOARD_T)
+    ap.add_argument("--engrave", action="store_true", help="also write the engraved (visual) body and use it in the assembly")
     a = ap.parse_args()
     G.BOARD_T = a.board_t
     alu, pins, z = build(a.board_t)
     print("levels:", {k: round(v, 3) for k, v in z.items()})
     bb = alu.BoundingBox()
     print("valid:", alu.isValid(), " solids:", len(alu.Solids()), " bbox %.2f x %.2f x %.2f" % (bb.xlen, bb.ylen, bb.zlen),
-          " volume %.1f mm3  mass (7075) %.2f g" % (alu.Volume(), alu.Volume() * DENSITY))
+          " faces:", len(alu.Faces()))
     asm_board, res = checks(alu, pins, z, a.board_t)
     for k, v in res.items(): print(f"  {k:36s} {v:8.3f}")
     tag = "" if abs(a.board_t - 1.20) < 1e-9 else f"_t{a.board_t:.2f}"
-    cq.exporters.export(cq.Workplane(obj=alu), str(HERE / f"hybrid_card_revA_alu{tag}.step"))
+    cq.exporters.export(cq.Workplane(obj=alu), str(HERE / f"hybrid_card_revA_alu{tag}.step"), opt={"write_pcurves": False})
+    shown = alu
+    if a.engrave:
+        shown = engraved(alu)
+        floor = lambda zz: sum(f.Area() for f in shown.Faces() if f.geomType() == "PLANE" and abs(f.Center().z - zz) < 1e-6 and abs(abs(f.normalAt().z) - 1) < 1e-6)
+        print("engraved: valid", shown.isValid(), " solids", len(shown.Solids()), " faces", len(shown.Faces()),
+              " engraved floor area: recto %.1f mm2, verso %.1f mm2" % (floor(T - ENGRAVE_RECTO), floor(ENGRAVE_VERSO)))
+        cq.exporters.export(cq.Workplane(obj=shown), str(HERE / f"hybrid_card_revA_alu_engraved{tag}.step"), opt={"write_pcurves": False})
     asm = cq.Assembly(name="hybrid_card_revA")
-    asm.add(cq.Workplane(obj=alu), name="aluminium_7075", color=cq.Color(*ALU))
+    asm.add(cq.Workplane(obj=shown), name="aluminium_7075", color=cq.Color(*ALU))
     asm.add(asm_board, name="board")
-    asm.save(str(HERE / f"hybrid_card_revA_assembly{tag}.step"))
+    asm.export(str(HERE / f"hybrid_card_revA_assembly{tag}.step"), write_pcurves=False)
     # fit gauge: the pocket alone, to cut in scrap and try the delivered boards in before the real part
     plain, _, _ = build(a.board_t, ripple=False)
     gauge = plain.intersect(cq.Workplane("XY").box(L - 37.0, W, T, centered=False).translate((37.0, 0, 0)).val())
-    cq.exporters.export(cq.Workplane(obj=gauge), str(HERE / f"hybrid_card_revA_fit_gauge{tag}.step"))
+    cq.exporters.export(cq.Workplane(obj=gauge), str(HERE / f"hybrid_card_revA_fit_gauge{tag}.step"), opt={"write_pcurves": False})
     print("written", f"hybrid_card_revA_alu{tag}.step", f"hybrid_card_revA_assembly{tag}.step", f"hybrid_card_revA_fit_gauge{tag}.step")
