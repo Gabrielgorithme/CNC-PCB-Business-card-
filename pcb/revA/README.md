@@ -62,10 +62,10 @@ intended connections and still checks their clearances.
 
 - Copper text at 0.5 / 0.6 / 0.7 / 0.8 / 1.0 mm and lines at 0.10 / 0.127 / 0.15 / 0.20 / 0.25 mm: a record of what this
   fab resolves, for the next board. Nothing on the board is under 0.10.
-- `JLCJLCJLCJLC` on silk at R38, 33 deg: where the fab may print its order number.
 
 Nothing on the board is left to chance against the fab's limits any more: the antenna is fully under mask, and in the BGA
-field the lands are gold while the dog-bone vias stay under mask, as on a real BGA, so no mask web there is under 0.4.
+field the lands are gold while the dog-bone vias stay under mask on both faces, as on a real BGA: the gold neck of each
+dog-bone stops at the via pad's edge, so the fab plugs all 49 holes and no mask web there is under 0.254.
 
 ## Vernier (back)
 
@@ -98,7 +98,8 @@ The stack-up in the board file is a nominal split that adds up to 1.20; the fab'
 - 3D model against KiCad's own STEP export of the board: same bounding box, same thickness, outline area equal to the
   board file's polygon to 0.01 mm2. Volumes differ by 7 mm3, which is the vias.
 - Chip footprint against figs. 31 (outline) and 32 (reflow footprint) of the NT3H2111_2211 data sheet, rev 3.6, looked at as
-  drawings: terminal order, land size and position, the wider pin 1 land, the paste pull-back and the bare centre all match.
+  drawings: terminal order, land size and position, the wider pin 1 land and the bare centre all match. The paste is deliberately not the data sheet's: see the pre-order
+  review below.
 - Unused chip pins: SCL, SDA and FD are left open and VCC is not connected. NXP's support answers on their community
   forum say these may float when unused.
 - Part numbers (JLCPCB parts library, looked up 2026-11-25): U1 C710403, D1 C130719 (NationStar NCD0402R1, red),
@@ -115,7 +116,7 @@ the tag circuit pass, no shorts, no opens, no closed copper loop over the coil o
 |---|---|
 | Placement angles were KiCad's raw bottom-side values; JLCPCB reads the bottom mirrored | `make_assembly.py` writes 180 minus KiCad's angle |
 | No pin 1 mark for U1 on silk, D1's cathode dot too small to print | 0.4 dots beside U1 pin 1 and D1's cathode |
-| Pin 1 land and paste of U1 not confirmed against the drawing | Redrawn from figs. 31 and 32 as seen: every land 0.40 x 0.22 at 0.60 from centre, the pin 1 land 0.32 wide with the extra 0.10 towards the corner, paste 0.025 inside each land. The 0.10 toe added earlier is gone |
+| Pin 1 land and paste of U1 not confirmed against the drawing | Redrawn from figs. 31 and 32 as seen: every land 0.40 x 0.22 at 0.60 from centre, the pin 1 land 0.32 wide with the extra 0.10 towards the corner. The 0.10 toe added earlier is gone. Paste: see the pre-order review |
 | Castellations: 0.15 ring, first hole 2.32 from the corner | Pads 1.3 high (0.25 ring), row moved down 0.7 (3.02 from the corner) |
 | A width clamp made every ladder line 0.15 | Ladders bypass the clamp |
 | Mask webs under 0.254 at the pin lands and in the BGA field | Ring ends pulled back from the pin lands (0.3 web); dog-bone vias now under mask |
@@ -123,6 +124,19 @@ the tag circuit pass, no shorts, no opens, no closed copper loop over the coil o
 | "No copper within 0.6 of any edge" was not true | Statement corrected above |
 | Solder bridges were 0402 lands with paste and a mask dam | Proper open solder bridges |
 | "U1" label touched the layer-marker window | Moved |
+
+## Pre-order review (2026-11-25)
+
+A second pass by the same auditor on the order package and the JLCPCB cart, before payment. One blocking item, two cosmetic:
+
+| Finding | Done |
+|---|---|
+| U1 paste apertures 0.35 x 0.17 (the data sheet's 0.025 pull-back): area ratio 0.57 with a 0.10 stencil, 0.48 with the 0.12 that JLCPCB pairs with 0402 and 0.5 pitch. Under the 0.66 guideline | Paste on the full land, 0.40 x 0.22 on all eight terminals (0.71 and 0.59), pin 1's at the nominal position with none on its extra strip |
+| `JLCJLCJLCJLC` placeholder on silk: the auditor reads JLCPCB's help page as saying the order-number mark was withdrawn in 2026 and the placeholder should be left off; with "Remove Mark" it would print as written | Removed |
+| The mask opening of each dog-bone ran to the via centre: 43 % of the hole open on the front, so neither plugged nor open | Opening ends at the via pad's edge; the 49 vias are covered on both faces |
+
+Checked against the package uploaded before: only the back paste, back silk and front mask layers differ, and only at
+those three places (rendered at 0.01 mm per pixel). Copper, outline and drill are identical.
 
 ## Before ordering
 
@@ -140,9 +154,10 @@ the tag circuit pass, no shorts, no opens, no closed copper loop over the coil o
 |---|---|
 | Layers, thickness | 4 layers, 1.2 mm |
 | Solder mask, finish | Black, ENIG |
-| Castellated holes | Yes |
+| Castellated holes | Yes, 1 edge |
+| Via covering | Plugged: the tented vias get filled, every hole with a mask opening stays open and gold |
 | Outline tolerance | The precision option (+/-0.1) if offered |
-| Mark on PCB (order number) | "Specify position": the `JLCJLCJLCJLC` text is under the ledge. Or pay to remove the mark |
+| Mark on PCB (order number) | Remove Mark. No placeholder text on the board |
 | Confirm production file / parts placement | Yes to both: this is where a rotated U1 or D1 gets caught |
 | Assembly | Bottom side only; JP1..JP3 are not parts |
 | Panel, rails, tooling holes | The curved edge and the castellated edge must stay clean. If the fab needs tabs or mouse-bites, ask for them on the two straight edges only (y = 3.28 and y = 50.70) |

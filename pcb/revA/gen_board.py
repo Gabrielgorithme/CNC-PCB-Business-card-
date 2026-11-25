@@ -36,7 +36,6 @@ GLUE_GAP = 0.08               # the rest of the ledge is this much lower: bond l
 COPPER_PULLBACK = 0.60        # centre lines of the artwork stay this far from the edge. Closest copper on the BACK along the joint and rims: the pin lands, 0.50
 PIN_D, PIN_B_FLATS = 2.00, 0.70   # pin A round; pin B is a blade across the line A-B (diamond pin): it takes +/-0.12 on the hole spacing
 PIN_TOP_BELOW, PIN_CHAMFER = 0.05, 0.15
-JLC_ROT = 123.0
 VERNIER_A0, VERNIER_STEP_PCB, VERNIER_STEP_ALU = 27.6, 1.35, 1.50   # degrees about the flexure centre, card frame
 BAND_Y = 38.4
 SLOT_R, SLOT_HW, SLOT_A = 48.0, 1.3, (-18.0, 17.0)
@@ -166,11 +165,12 @@ def smd_pad(c, w, h, layers, shape="circle", rr=0.5):
     ART_PADS.append((_key(c), f'smd {shape} (at {c[0]:.4f} {c[1]:.4f}) (size {w} {h}) (layers {layers}){rrs}'))
     _find(_key(c))
 
-def art_trace(pts, w, a, b, expose=0.0):
-    """Exposed decorative trace from the pad at a to the pad at b (pad centres; the trace may start inside the pad)."""
+def art_trace(pts, w, a, b, expose=0.0, mask_pts=None):
+    """Exposed decorative trace from the pad at a to the pad at b (pad centres; the trace may start inside the pad).
+    mask_pts: the mask opening where it must stop short of the copper's end (at a via that stays under mask)."""
     _join(a, b); w = max(w, 0.15)
     ART_TRACKS.append((_key(a), pts, w))
-    polyline("F.Mask", pts, w + 2 * expose)
+    polyline("F.Mask", mask_pts or pts, w + 2 * expose)
 
 def meander(xa, xb, y, amp=0.36, period=0.8):
     pts = [(xa, y)]; x = xa; up = True
@@ -241,8 +241,13 @@ def build():
         for i in range(8): smd_pad((bx - 3.5 + i, by - 3.5 + j), 0.5, 0.5, '"F.Cu" "F.Mask"')
     for j in range(7):
         for i in range(7):
-            th_pad((bx - 3.0 + i, by - 3.0 + j), 0.6, 0.3, tented=True)    # as on a real BGA: lands in gold, dog-bones and vias under mask. No mask web under 0.5 anywhere in the field
-            art_trace([(bx - 3.5 + i, by - 3.5 + j), (bx - 3.0 + i, by - 3.0 + j)], 0.11, (bx - 3.5 + i, by - 3.5 + j), (bx - 3.0 + i, by - 3.0 + j))
+            # lands in gold, vias under mask on both faces (so the fab plugs them). The gold neck of each dog-bone
+            # stops at the via pad's edge: its mask opening (0.15 wide, round end) ends 0.395 from the via centre,
+            # clear of the 0.60 pad, so no hole is left half open.
+            land, via = (bx - 3.5 + i, by - 3.5 + j), (bx - 3.0 + i, by - 3.0 + j)
+            k = 1.0 - 0.395 / math.hypot(0.5, 0.5)
+            th_pad(via, 0.6, 0.3, tented=True)
+            art_trace([land, via], 0.11, land, via, mask_pts=[land, (land[0] + 0.5 * k, land[1] + 0.5 * k)])
     for i in range(8):                                   # top row escapes to staggered vias
         x = bx - 3.5 + i; y = 6.3 if i % 2 == 0 else 5.5
         th_pad((x, y), 0.6, 0.3); art_trace([(x, by - 3.5), (x, y)], 0.13, (x, by - 3.5), (x, y))
@@ -303,9 +308,6 @@ def build():
     for i in range(11):
         a = VERNIER_A0 + i * VERNIER_STEP_PCB
         gold("B.Cu", "B.Mask", [pol(R_JOINT + LEDGE + 0.5, a), pol(R_JOINT + LEDGE + 0.5 + (1.5 if i % 5 == 0 else 1.0), a)], 0.12)
-    # where the fab may print its order number: hidden under the ledge. Order with "specify position" for that mark.
-    c = pol(38.2, 33.0)
-    for st in text(c[0], c[1], "JLCJLCJLCJLC", 0.9, "middle", rot=JLC_ROT, mirror=True): polyline("B.SilkS", st, 0.15)
     # silkscreen (back)
     for (x, y, s) in ((62.9, 42.35, "U1"), (62.4, 37.6, "D1"), (88.0, 0, "")):
         if s:
