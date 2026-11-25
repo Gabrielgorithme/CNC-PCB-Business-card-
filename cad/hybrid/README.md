@@ -78,3 +78,10 @@ Taken from the B2 mock-up, so the model and the picture cannot disagree. Two thi
 - The vernier now exists on both halves. Eleven ticks 1.50 deg apart on the underside of the ledge, eleven gold ticks
   1.35 deg apart on the back of the board, from 27.6 deg about the flexure centre. One step of coincidence is 0.1 mm at R40,
   so the back of the card shows how well the pins did their job.
+
+## In Fusion
+
+`Hybrid card revA - assembly` in the "Business card" project: the board STEP and the engraved aluminium STEP imported at
+the origin, the board's two faces carrying `pcb/revA/out/decal_front.jpg` and `decal_back.jpg` as decals
+(centre 63.7175, 26.99; 43.565 x 47.42 mm; the back one with X reversed). Fusion's own check on that document:
+aluminium body solid, 4443.7 mm3 (12.5 g of 7075), no interference between any two of the eleven bodies.
