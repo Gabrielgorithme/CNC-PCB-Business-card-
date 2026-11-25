@@ -55,7 +55,8 @@ intended connections and still checks their clearances.
 
 ## Checks done
 
-- KiCad 7 design-rule check: 0 unconnected pads, 8 violations. All 8 are the castellated half-holes sitting on the
+- Design-rule check in KiCad 10.0.8 (through kicad-mcp-pro on the PC) and in KiCad 7: same result both times,
+  0 unconnected items, 0 courtyard issues, 8 violations. All 8 are the castellated half-holes sitting on the
   board edge, which is what a castellated hole is.
 - Rendered from the plots and looked at, front, back and lit.
 
@@ -64,13 +65,12 @@ intended connections and still checks their clearances.
 1. **Chip footprint.** `XQFN-8_1.6x1.6mm_SOT902-3_PROVISIONAL` is drawn from the body size and a 3-1-3-1 terminal
    arrangement at 0.5 mm pitch. It has not been checked against NXP's reflow drawing for SOT902-3. Replace it with a
    verified footprint (JLCPCB/LCSC part C710403), then rerun `place_parts.py`.
-2. **Design-rule check in KiCad 10.0.8.** Only KiCad 7 has checked this file.
-3. **Unused chip pins.** SCL, SDA, FD and VCC are left open. The datasheet gives no guidance for the no-host case.
-4. **LED direction.** A standard LED on the back shines away from the board. Whether enough light comes back into the
+2. **Unused chip pins.** SCL, SDA, FD and VCC are left open. The datasheet gives no guidance for the no-host case.
+3. **LED direction.** A standard LED on the back shines away from the board. Whether enough light comes back into the
    slot off the phone is exactly what this coupon tests. Reverse-mount LEDs that fire through the board are 1.2 mm
    tall or more and do not fit the recess.
-5. **Part numbers.** Only the chip's is filled in. LED, resistor and capacitors are picked in JLCPCB's parts tool.
-6. **Placement rotations** in the CPL file are KiCad's raw values. Check them in JLCPCB's placement preview.
+4. **Part numbers.** Only the chip's is filled in. LED, resistor and capacitors are picked in JLCPCB's parts tool.
+5. **Placement rotations** in the CPL file are KiCad's raw values. Check them in JLCPCB's placement preview.
 
 ## Order options this design assumes
 
