@@ -1,0 +1,6 @@
+out/stage1.kicad_pcb
+out/gerbers/
+out/drc_*.rpt
+out/*.kicad_prl
+out/*-backups/
+__pycache__/
