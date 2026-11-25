@@ -45,7 +45,7 @@ def face(cu, mask, silk, mirror, lit_layers=None):
     return Image.fromarray((np.clip(img, 0, 1) * 255).astype(np.uint8))
 
 if __name__ == "__main__":
-    face("F.Cu", "F.Mask", "F.SilkS", False).save(OUT / "preview_front.png")
-    face("B.Cu", "B.Mask", "B.SilkS", True).save(OUT / "preview_back.png")
-    face("F.Cu", "F.Mask", "F.SilkS", False, ["In1.Cu", "In2.Cu", "B.Cu"]).save(OUT / "preview_front_lit.png")
+    face("F.Cu", "F.Mask", "F.SilkS", False).convert("RGB").save(OUT / "preview_front.jpg", quality=90)
+    face("B.Cu", "B.Mask", "B.SilkS", True).convert("RGB").save(OUT / "preview_back.jpg", quality=90)
+    face("F.Cu", "F.Mask", "F.SilkS", False, ["In1.Cu", "In2.Cu", "B.Cu"]).convert("RGB").save(OUT / "preview_front_lit.jpg", quality=90)
     print("previews written")
