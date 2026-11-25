@@ -1,10 +1,11 @@
 """Assembly files in JLCPCB's column layout: BOM (one line per value) and placement list (back side only)."""
 import csv, pathlib, subprocess, collections
 import pcbnew
+import place_parts
 HERE = pathlib.Path(__file__).resolve().parent
 OUT = HERE / "out"
 b = pcbnew.LoadBoard(str(OUT / "hybrid_card_revA.kicad_pcb"))
-LCSC = {"U1": "C710403"}
+LCSC = {ref: v[4] for ref, v in place_parts.PARTS.items() if v[4]}
 SKIP = ("ART", "ANT", "JP")
 groups = collections.OrderedDict()
 for f in sorted(b.GetFootprints(), key=lambda f: f.GetReference()):

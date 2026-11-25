@@ -21,6 +21,8 @@ isocp.G[":"] = {"w": _dot["w"], "sb": _dot["sb"], "s": _dot["s"] + [[[x, y + iso
 
 # ----------------------------------------------------------------------------- shared geometry (mm)
 CARD_W, CARD_H, CARD_R = 85.60, 53.98, 3.18
+CARD_T, BOARD_T = 1.70, 1.20   # card and board thickness; the board sits flush with the recto on a 0.50 ledge.
+# The stack-up written to the board file is a nominal split that adds up to BOARD_T; the fab's standard stack-up applies.
 SPR = (19.0, 21.5)            # flexure / ripple centre
 R_JOINT = 36.0                # joint = 18th ripple crest (wavelength 2 mm)
 LEDGE, RIM, RIM_LEDGE = 4.0, 3.18, 1.5
@@ -334,7 +336,7 @@ NETS = []
 VIAS_FRONT_KEEPOUT = [COIL_END, (69.9, 40.2), (69.0, 39.4), (63.6, 39.4)]
 
 HEADER = '''(kicad_pcb (version 20221018) (generator gg_card_gen)
-  (general (thickness 1.0))
+  (general (thickness %s))
   (paper "A4")
   (title_block (title "Hybrid card - PCB half") (rev "A") (company "Gabriel Ghanem") (comment 1 "First article / test coupon"))
   (layers
@@ -343,9 +345,27 @@ HEADER = '''(kicad_pcb (version 20221018) (generator gg_card_gen)
     (38 "B.Mask" user) (39 "F.Mask" user) (40 "Dwgs.User" user "User.Drawings") (41 "Cmts.User" user "User.Comments")
     (44 "Edge.Cuts" user) (45 "Margin" user) (46 "B.CrtYd" user "B.Courtyard") (47 "F.CrtYd" user "F.Courtyard")
     (48 "B.Fab" user) (49 "F.Fab" user))
-  (setup (pad_to_mask_clearance 0) (aux_axis_origin %s %s) (grid_origin %s %s))
+  (setup
+    (stackup
+      (layer "F.SilkS" (type "Top Silk Screen"))
+      (layer "F.Paste" (type "Top Solder Paste"))
+      (layer "F.Mask" (type "Top Solder Mask") (color "Black") (thickness 0))
+      (layer "F.Cu" (type "copper") (thickness 0.035))
+      (layer "dielectric 1" (type "prepreg") (thickness 0.21) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
+      (layer "In1.Cu" (type "copper") (thickness 0.0175))
+      (layer "dielectric 2" (type "core") (thickness %s) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
+      (layer "In2.Cu" (type "copper") (thickness 0.0175))
+      (layer "dielectric 3" (type "prepreg") (thickness 0.21) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
+      (layer "B.Cu" (type "copper") (thickness 0.035))
+      (layer "B.Mask" (type "Bottom Solder Mask") (color "Black") (thickness 0))
+      (layer "B.Paste" (type "Bottom Solder Paste"))
+      (layer "B.SilkS" (type "Bottom Silk Screen"))
+      (copper_finish "ENIG")
+      (dielectric_constraints no)
+      (castellated_pads yes))
+    (pad_to_mask_clearance 0) (aux_axis_origin %s %s) (grid_origin %s %s))
   (net 0 "")
-''' % (OX, OY, OX, OY)
+''' % (BOARD_T, round(BOARD_T - 2 * (0.035 + 0.0175 + 0.21), 4), OX, OY, OX, OY)
 
 if __name__ == "__main__":
     art, ant, L = build()

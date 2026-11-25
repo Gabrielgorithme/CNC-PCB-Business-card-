@@ -13,12 +13,12 @@ V = lambda p: pcbnew.VECTOR2I(mm(p[0] + G.OX), mm(p[1] + G.OY))
 # reference: (library, footprint, value, position in the card frame, LCSC part or None, populate?)
 PARTS = {
     "U1": (HERE / "gg_card.pretty", "XQFN-8_1.6x1.6mm_SOT902-3_PROVISIONAL", "NT3H2111W0FHK", (66.6, 41.6), "C710403", True),
-    "D1": (LIB / "LED_SMD.pretty", "LED_0402_1005Metric", "LED red 0402", (64.9, 37.9), None, True),
-    "R1": (LIB / "Resistor_SMD.pretty", "R_0402_1005Metric", "47R", (66.4, 39.6), None, True),
-    "C2": (LIB / "Capacitor_SMD.pretty", "C_0402_1005Metric", "220n", (69.0, 40.9), None, True),
-    "C3": (LIB / "Capacitor_SMD.pretty", "C_0402_1005Metric", "6.8p C0G", (63.6, 44.2), None, True),
-    "C4": (LIB / "Capacitor_SMD.pretty", "C_0402_1005Metric", "12p C0G", (63.6, 45.4), None, True),
-    "C5": (LIB / "Capacitor_SMD.pretty", "C_0402_1005Metric", "22p C0G", (63.6, 46.6), None, True),
+    "D1": (LIB / "LED_SMD.pretty", "LED_0402_1005Metric", "LED red 0402 NCD0402R1", (64.9, 37.9), "C130719", True),
+    "R1": (LIB / "Resistor_SMD.pretty", "R_0402_1005Metric", "33R", (66.4, 39.6), "C25105", True),
+    "C2": (LIB / "Capacitor_SMD.pretty", "C_0402_1005Metric", "220n X7R 16V", (69.0, 40.9), "C16772", True),
+    "C3": (LIB / "Capacitor_SMD.pretty", "C_0402_1005Metric", "6.8p C0G", (63.6, 44.2), "C1576", True),
+    "C4": (LIB / "Capacitor_SMD.pretty", "C_0402_1005Metric", "12p C0G", (63.6, 45.4), "C1547", True),
+    "C5": (LIB / "Capacitor_SMD.pretty", "C_0402_1005Metric", "22p C0G", (63.6, 46.6), "C1555", True),
     "JP1": (LIB / "Resistor_SMD.pretty", "R_0402_1005Metric", "solder bridge", (66.6, 44.2), None, False),
     "JP2": (LIB / "Resistor_SMD.pretty", "R_0402_1005Metric", "solder bridge", (66.6, 45.4), None, False),
     "JP3": (LIB / "Resistor_SMD.pretty", "R_0402_1005Metric", "solder bridge", (66.6, 46.6), None, False),
@@ -81,7 +81,7 @@ def main(src, dst):
     dA, dK = pad("D1", 2), pad("D1", 1)
     c2v, c2g = pad("C2", 1), pad("C2", 2)
     XR, XBUS, XA, YB, YA = 68.1, 69.9, 62.4, 43.1, 48.75
-    # harvested supply: VOUT -> 220n to ground, -> 47R -> LED
+    # harvested supply: VOUT -> 220n to ground, -> 33R -> LED
     track("VOUT", [u[7], (XR, u[7][1]), (XR, r1v[1]), r1v])
     track("VOUT", [(XR, c2v[1]), c2v])
     track("LED_A", [r1l, (dA[0], r1l[1]), dA])

@@ -1,3 +1,3 @@
 (fp_lib_table
-  (lib (name "gg_card")(type "KiCad")(uri "${KIPRJMOD}/gg_card.pretty")(options "")(descr "Hybrid card: provisional and custom footprints"))
+  (lib (name "gg_card")(type "KiCad")(uri "${KIPRJMOD}/gg_card.pretty")(options "")(descr "Hybrid card: custom footprints"))
 )
