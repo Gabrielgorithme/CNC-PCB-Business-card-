@@ -79,6 +79,11 @@ The stack-up in the board file is a nominal split that adds up to 1.20; the fab'
 - Rendered from the plots and looked at, front, back and lit.
 - 3D model against KiCad's own STEP export of the board: same bounding box, same thickness, outline area equal to the
   board file's polygon to 0.01 mm2. Volumes differ by 7 mm3, which is the vias.
+- Chip footprint against the reflow footprint figure for SOT902-3 in the NT3H2111_2211 data sheet (rev 3.6, fig. 32):
+  lands 0.40 x 0.22 centred 0.60 from the package centre on all four sides, 0.5 pitch along a side, occupied area
+  1.9 x 1.9. The footprint uses those lands with a 0.10 toe added outwards. The numbers were read from the figure's
+  text, not from the drawing itself; one detail of the pin 1 land (two values, 0.32 and 0.11) could not be placed.
+  The metal area under the centre of the package is not for soldering: nothing is routed or exposed there.
 - Unused chip pins: SCL, SDA and FD are left open and VCC is not connected. NXP's support answers on their community
   forum say these may float when unused.
 - Part numbers (JLCPCB parts library, looked up 2026-11-25): U1 C710403, D1 C130719 (NationStar NCD0402R1, red),
@@ -87,13 +92,9 @@ The stack-up in the board file is a nominal split that adds up to 1.20; the fab'
 
 ## Before ordering
 
-1. **Chip footprint.** The land pattern is drawn from the package dimensions (terminals 0.2 x 0.4, three per side at
-   0.5 mm, one centred on each of the other two sides). Arrangement and pitch agree with NXP's reflow footprint for
-   SOT902-1 and the pin figures of SOT902-2 parts. NXP's reflow drawing for SOT902-3 itself (`sot902-3_fr`) has not
-   been seen, hence the name. Compare with that drawing, or with the footprint JLCPCB shows for C710403, then rename.
-2. **Placement rotations** in the CPL file are KiCad's raw values. Check U1 and D1 in JLCPCB's placement preview;
+1. **Placement rotations** in the CPL file are KiCad's raw values. Check U1 and D1 in JLCPCB's placement preview;
    the passives are symmetric.
-3. **LED direction.** A standard LED on the back shines away from the board. Whether enough light comes back into the
+2. **LED direction.** A standard LED on the back shines away from the board. Whether enough light comes back into the
    slot off the phone is what this coupon tests.
 
 ## Order options this design assumes

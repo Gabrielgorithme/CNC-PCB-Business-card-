@@ -275,7 +275,7 @@ def build():
         gold_text("B.Cu", "B.Mask", back_arc_text(44.8 - i * 1.3, -0.5, s, 0.8, 0.18), 0.12)
     # inside the antenna
     xi = (COIL["x0"] + COIL["turns"] * COIL["pitch"] + COIL["x1"] - COIL["turns"] * COIL["pitch"]) / 2
-    gold_text("B.Cu", "B.Mask", text(xi + 0.4, 21.6, "13.56 MHZ · TAP HERE", 0.85, track=0.2, rot=-90, mirror=True), 0.13)
+    gold_text("B.Cu", "B.Mask", text(xi + 0.4, 21.6, "13.56 MHZ · TAP PHONE HERE", 0.85, track=0.2, rot=-90, mirror=True), 0.13)
     gold_text("B.Cu", "B.Mask", text(xi - 1.6, 21.6, "NO BATTERY ON THIS CARD", 0.68, track=0.12, rot=-90, mirror=True), 0.11)
     # coupon only, hidden under the ledge once assembled: text-height and line-width ladders
     a = -13.0

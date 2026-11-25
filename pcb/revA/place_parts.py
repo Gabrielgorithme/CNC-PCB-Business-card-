@@ -12,7 +12,7 @@ V = lambda p: pcbnew.VECTOR2I(mm(p[0] + G.OX), mm(p[1] + G.OY))
 
 # reference: (library, footprint, value, position in the card frame, LCSC part or None, populate?)
 PARTS = {
-    "U1": (HERE / "gg_card.pretty", "XQFN-8_1.6x1.6mm_SOT902-3_PROVISIONAL", "NT3H2111W0FHK", (66.6, 41.6), "C710403", True),
+    "U1": (HERE / "gg_card.pretty", "XQFN-8_1.6x1.6mm_P0.5mm_SOT902-3", "NT3H2111W0FHK", (66.6, 41.6), "C710403", True),
     "D1": (LIB / "LED_SMD.pretty", "LED_0402_1005Metric", "LED red 0402 NCD0402R1", (64.9, 37.9), "C130719", True),
     "R1": (LIB / "Resistor_SMD.pretty", "R_0402_1005Metric", "33R", (66.4, 39.6), "C25105", True),
     "C2": (LIB / "Capacitor_SMD.pretty", "C_0402_1005Metric", "220n X7R 16V", (69.0, 40.9), "C16772", True),
