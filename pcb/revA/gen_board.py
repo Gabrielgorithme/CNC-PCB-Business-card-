@@ -13,7 +13,7 @@ from shapely import affinity
 
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
-sys.path.insert(0, str(ROOT / "site")); sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(ROOT / "lettering")); sys.path.insert(0, str(HERE))
 import isocp, coil  # noqa: E402
 
 _dot = isocp.G["."]

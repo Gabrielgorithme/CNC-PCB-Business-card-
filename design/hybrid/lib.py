@@ -1,5 +1,5 @@
 """Shared drawing helpers for the hybrid (aluminium + PCB) card mockups.
-10 SVG units = 1 mm, same convention as design/v3. Geometry is built with shapely so every outline
+10 SVG units = 1 mm, the convention of the first card's artwork. Geometry is built with shapely so every outline
 respects the two processes: no inside corner tighter than R0.5 (1 mm router bit at the PCB fab, 1 mm end mill here)."""
 import math, base64, io, pathlib, sys
 import numpy as np
@@ -8,7 +8,7 @@ from shapely.geometry import Polygon, box, Point, LineString
 from shapely import affinity
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(ROOT / "site"))
+sys.path.insert(0, str(ROOT / "lettering"))
 import isocp  # noqa: E402  (ISOCP single-line strokes, as engraved on the first card)
 
 W, H, R = 856, 540, 32
