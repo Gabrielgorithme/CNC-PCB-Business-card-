@@ -2,7 +2,8 @@
 
 Card frame of the CAD models, same as cad/build_card.py: X along the long edge, Y up as seen from the RECTO,
 origin at the card's bottom-left corner, Z = 0 the verso face, Z = 1.70 the recto face.
-The board sits flush with the recto: Z = 0.50 ... 1.70. Its parts hang from the back face, down to Z = 0.
+The board's top face is at ripple-crest height, 0.02 below the faced recto: Z = 0.48 ... 1.68 for a 1.20 board.
+Its parts hang from the back face.
 
 The outline is rebuilt from true lines and arcs (the board file carries it as a fine polygon) and checked
 against the polygon's area. Vias and copper are left out: this model is for fit, not for plots.
@@ -18,43 +19,55 @@ except ImportError:                      # no KiCad on this machine: read the pa
     sys.modules["pcbnew"] = types.SimpleNamespace(FromMM=lambda v: v, VECTOR2I=lambda *a: a)
     import place_parts as P
 
-Z0 = G.CARD_T - G.BOARD_T                # back face of the board
+Z_TOP = G.CARD_T - G.SKIM                # the board's top face is at ripple-crest height
+Z0 = Z_TOP - G.BOARD_T                   # back face of the board = seating plane on the aluminium
 Y = lambda y: G.CARD_H - y               # board file (y down) -> CAD frame (y up)
 BLACK, GOLD, CHIP, CAP, RES, LED = (0.05, 0.05, 0.06), (0.83, 0.68, 0.33), (0.12, 0.12, 0.13), (0.62, 0.52, 0.40), (0.10, 0.10, 0.10), (0.85, 0.80, 0.70)
 
 # body sizes [mm]: length, width, height. 0402 heights are nominal catalogue values.
 BODY = {"U": (1.6, 1.6, 0.50, CHIP), "C": (1.0, 0.5, 0.50, CAP), "R": (1.0, 0.5, 0.35, RES), "D": (1.0, 0.5, 0.40, LED)}
 
-def outline():
-    """Pocket-side outline with true arcs: rectangle minus the joint circle, R1.0 on the two corners in the
-    pocket, pulled in by the gap, trimmed by the card's right edge."""
+def region(extra_arc=0.0, extra_rim=0.0, offset=0.0, x_max=None):
+    """The board-shaped region with true lines and arcs, as a planar face at Z = 0 in the CAD frame:
+    rectangle between the rims minus the joint circle, R1.0 on the two corners that sit in the pocket.
+    extra_arc / extra_rim move the joint and the rims inwards (the ledge's inner edge); offset < 0 pulls the whole
+    profile in (board = pocket - GAP). x_max trims the free side; None leaves it open past the card's edge,
+    which is what a cutting tool needs."""
     cx, cy = G.SPR[0], Y(G.SPR[1])
-    y_lo, y_hi = G.RIM, G.CARD_H - G.RIM
+    y_lo, y_hi = G.RIM + extra_rim, G.CARD_H - G.RIM - extra_rim
     far = G.CARD_W + 10
     blank = cq.Workplane("XY").moveTo(cx, y_lo).lineTo(far, y_lo).lineTo(far, y_hi).lineTo(cx, y_hi).close().extrude(1)
-    blank = blank.cut(cq.Workplane("XY").center(cx, cy).circle(G.R_JOINT).extrude(1))
+    blank = blank.cut(cq.Workplane("XY").center(cx, cy).circle(G.R_JOINT + extra_arc).extrude(1))
     sel = cq.selectors.BoxSelector((cx, y_lo - 0.01, -1), (G.CARD_W - 1, y_hi + 0.01, 2))
     blank = blank.edges("|Z").edges(sel).fillet(1.0)
     wire = blank.faces("<Z").wires().val()
-    inner = wire.offset2D(-G.GAP)[0]
-    face = cq.Face.makeFromWires(inner)
-    card = cq.Workplane("XY").rect(G.CARD_W, G.CARD_H, centered=False).extrude(1).faces("<Z").val()
-    return face.intersect(card)
+    if offset: wire = wire.offset2D(offset)[0]
+    face = cq.Face.makeFromWires(wire)
+    if x_max is not None:
+        face = face.intersect(cq.Workplane("XY").rect(x_max, G.CARD_H, centered=False).extrude(1).faces("<Z").val())
+        face = face.Faces()[0]
+    return face
+
+def prism(face, z0, z1):
+    return cq.Solid.extrudeLinear(face, cq.Vector(0, 0, z1 - z0)).translate(cq.Vector(0, 0, z0))
+
+def outline():
+    return region(offset=-G.GAP, x_max=G.EDGE_X)
 
 def build():
     face = outline()
     area = face.Area()
     assert abs(area - G.BOARD.area) < 0.5, (area, G.BOARD.area)
-    board = cq.Workplane(obj=cq.Solid.extrudeLinear(face.Faces()[0] if hasattr(face, "Faces") else face, cq.Vector(0, 0, G.BOARD_T))).translate((0, 0, Z0))
+    board = cq.Workplane(obj=prism(face, Z0, Z_TOP))
     for p in G.PINS:                                     # locating holes
         board = board.cut(cq.Workplane("XY").center(p[0], Y(p[1])).circle(G.PIN_DRILL / 2).extrude(G.CARD_T + 1).translate((0, 0, -0.5)))
     for cy in G.CAST_Y:                                  # castellated half-holes on the free edge
-        board = board.cut(cq.Workplane("XY").center(G.CARD_W, Y(cy)).circle(0.4).extrude(G.CARD_T + 1).translate((0, 0, -0.5)))
+        board = board.cut(cq.Workplane("XY").center(G.EDGE_X, Y(cy)).circle(0.4).extrude(G.CARD_T + 1).translate((0, 0, -0.5)))
     asm = cq.Assembly(name="hybrid_card_revA_board")
     asm.add(board, name="board_FR4_1.2", color=cq.Color(*BLACK))
     for p in G.PINS:                                     # gold lands around the pin holes, both faces (0.02 proud, visual only)
         ring = cq.Workplane("XY").center(p[0], Y(p[1])).circle(G.PIN_PAD / 2).circle(G.PIN_DRILL / 2).extrude(0.02)
-        asm.add(ring.translate((0, 0, G.CARD_T)), name=f"land_front_{G.PINS.index(p) + 1}", color=cq.Color(*GOLD))
+        asm.add(ring.translate((0, 0, Z_TOP)), name=f"land_front_{G.PINS.index(p) + 1}", color=cq.Color(*GOLD))
     for ref, (lib, fp, val, pos, lcsc, fit) in P.PARTS.items():
         if not fit: continue
         l, w, h, col = BODY[ref[0]]

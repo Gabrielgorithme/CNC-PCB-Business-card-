@@ -19,7 +19,9 @@ Rev A is a real board in the real outline, with a few coupon-only features, mean
 - Rims 3.18 top and bottom. Ledge 4.0 along the joint, 1.5 under the rims.
 - Board outline drawn 0.10 smaller than the nominal pocket per side, R1.0 on the corners that sit in the pocket.
   The pocket is meant to be machined to the delivered boards.
-- Two locating pins at R38, -24 deg and +22 deg: (53.71, 6.04) and (54.23, 35.74). Plated holes 2.10, lands 3.20.
+- Two locating pins at R38, -24 deg and +22 deg: (53.71, 6.04) and (54.23, 35.74). Plated holes 2.10, lands 2.80.
+- The free edge stops 0.10 inside the card's edge (x = 85.50). No copper within 0.60 of any edge.
+- How the board sits on the aluminium (seat, glue land, pins, heights) is in `cad/hybrid/README.md`.
 
 ## The tag
 
@@ -58,17 +60,18 @@ intended connections and still checks their clearances.
 ## 3D model
 
 `hybrid_card_revA_board.step` uses the same frame as `cad/build_card.py`: X along the long edge, Y up as seen from the
-recto, origin at the card's bottom-left corner, Z = 0 the verso face, Z = 1.70 the recto face. The board occupies
-Z = 0.50 ... 1.70 and its parts hang down to Z = 0. Dropped into the card's assembly at the origin it is in place.
+recto, origin at the card's bottom-left corner, Z = 0 the verso face, Z = 1.70 the faced recto. The board's top face
+is at ripple-crest height, Z = 1.68; a 1.20 board occupies Z = 0.48 ... 1.68. Dropped into the card's assembly at the
+origin it is in place.
 
 The outline is rebuilt from true lines and arcs. Vias and copper are not modelled. Part bodies are plain blocks
 (chip 1.6 x 1.6 x 0.5 from the datasheet; 0402 heights are nominal catalogue values).
 
-## Thickness: 1.2 mm board on a 0.50 mm ledge
+## Thickness: 1.2 mm board
 
-Card 1.70, board 1.20, flush with the recto. The recess behind the board is therefore 0.50 deep, and the chip and the
-0402 capacitors are 0.50 tall: they come flush with the aluminium back, with nothing to spare. The solder under them
-adds a few hundredths, so expect them to stand that much proud of the verso plane, inside the recess.
+Card 1.70, board 1.20 nominal. The pocket is cut to the measured thickness of the delivered boards, so the top face
+lands at crest height whatever the fab delivers (their tolerance is 10 %). The parts on the back are 0.50 tall:
+with a 1.20 board their lowest face is 0.02 below the verso plane, plus the solder under them.
 The stack-up in the board file is a nominal split that adds up to 1.20; the fab's standard 1.2 mm 4-layer stack-up applies.
 
 ## Checks done

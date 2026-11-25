@@ -80,7 +80,7 @@ def main(src, dst):
     r1v, r1l = pad("R1", 1), pad("R1", 2)
     dA, dK = pad("D1", 2), pad("D1", 1)
     c2v, c2g = pad("C2", 1), pad("C2", 2)
-    XR, XBUS, XA, YB, YA = 68.1, 69.9, 62.4, 43.1, 48.75
+    XR, XBUS, XA, YB, YA = 68.1, 69.9, 62.4, 43.1, 48.5
     # harvested supply: VOUT -> 220n to ground, -> 33R -> LED
     track("VOUT", [u[7], (XR, u[7][1]), (XR, r1v[1]), r1v])
     track("VOUT", [(XR, c2v[1]), c2v])
