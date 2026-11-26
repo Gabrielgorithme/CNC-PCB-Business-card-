@@ -87,4 +87,5 @@ Taken from the B2 mock-up, so the model and the picture cannot disagree. Two thi
 `Hybrid card revA - assembly` in the "Business card" project: the board STEP and the engraved aluminium STEP imported at
 the origin, the board's two faces carrying `pcb/revA/out/decal_front.jpg` and `decal_back.jpg` as decals
 (centre 63.7175, 26.99; 43.565 x 47.42 mm; the back one with X reversed). Fusion's own check on that document:
-aluminium body solid, 4443.7 mm3 (12.5 g of 7075), no interference between any two of the eleven bodies.
+aluminium body solid, 4401.7 mm3 (12.4 g of 7075), no interference between any two of the eleven bodies.
+Updated 2026-11-26 to the 2 mm flexure slots, the new title block and the board's final face images.
