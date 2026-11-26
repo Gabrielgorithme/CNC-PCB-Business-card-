@@ -218,8 +218,14 @@ def verso():
     a.append(P(f"M{px-5},{py+6} h64", .8, ENG2, extra='stroke-dasharray="9 3 2 3"'))
     a.append(T(px, 432, "ISO 8015", 0.68, ENG, "start", 0.1, wt=1.0)); a.append(T(px, 445, "2768-FH", 0.68, ENG, "start", 0.1, wt=1.0))
     # title block
-    a.append(f'<rect x="560" y="456" width="244" height="38" fill="none" stroke="{ENG}" stroke-width="1.3"/>' + P("M560,476 H804", 1.0))
-    a.append(T(566, 471, "AVAILABLE SEPT. 2027", 1.0, ENG, "start", 0.25)); a.append(T(566, 489, "GABRIEL.GHANEM@GMAIL.COM", 0.8, ENG, "start", 0.15))
+    # Nothing dated is engraved in the aluminium, so the card does not go out of date: the address takes the main
+    # row, and the row under it holds what a drawing's title block holds and stays true (the card is its own drawing).
+    a.append(f'<rect x="560" y="456" width="244" height="38" fill="none" stroke="{ENG}" stroke-width="1.3"/>' + P("M560,478 H804", 1.0))
+    a.append(T(566, 472, "GABRIEL.GHANEM@GMAIL.COM", 0.95, ENG, "start", 0.2))
+    cw = 244 / 3
+    for i, cell in enumerate(["SCALE 1:1", "SHEET 2/2", "REV A"]):
+        if i: a.append(P(f"M{560 + i * cw:.2f},478 V494", 1.0))
+        a.append(T(560 + (i + .5) * cw, 489.4, cell, 0.66, ENG, "middle", 0.14, wt=1.0))
     # statement, set along the short edge
     a.append(f'<g transform="translate(826,474) rotate(-90)">' + T(0, 0, "DESIGNED, PROGRAMMED AND MACHINED BY", 0.8, ENG, "start", 0.2) + T(0, 16, "THE PERSON WHO HANDED IT TO YOU.", 0.8, ENG, "start", 0.2) + "</g>")
     return card(alu_image(None, seed=7), alu, pcb, "\n".join(b), "\n".join(a), extra_top=top)
