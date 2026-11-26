@@ -23,7 +23,7 @@ import make_step as B
 L, W, T = G.CARD_W, G.CARD_H, G.CARD_T
 Y = B.Y
 CHAMFER = 0.15                                   # outer edges, both faces
-R_POCKET, R_BOSS, WEB, SLOT_W = 13.0, 4.8, 0.40, 1.0   # flexure, as on v1
+R_POCKET, R_BOSS, WEB, SLOT_W = 13.0, 4.8, 0.40, 2.0   # flexure, as on v1; slots 2.0 since 2026-11-26 (2 mm end mill on the same centrelines)
 FLEX_DEPTH = (T - WEB) / 2
 HOLE = (5.0, W - 5.0, 3.0)                       # x, y, diameter
 LAMBDA, AMP, DECAY = 2.0, 0.12, 70.0             # ripple: wavelength, amplitude at the source, decay length

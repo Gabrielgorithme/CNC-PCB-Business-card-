@@ -58,6 +58,9 @@ are 0.50 tall: their lowest face is at seat − 0.50, i.e. 0.02 below the verso 
 
 ## Machining notes
 
+- Flexure slots are 2.0 mm wide (1.0 until 2026-11-26): cut with the 2 mm end mill on the slot centrelines, as on the
+  first card, where the wider slot gave a softer, more responsive spring. Legs 1.2 mm wide; the slots come within
+  0.40 of the boss and 0.20 of the pocket wall.
 - Pocket corners are R1.0 (R0.5 at the seat step). Finish them with a cutter of Ø1.5 or less; a Ø2 cutter would
   have to plunge into the corner at full engagement.
 - The seat is the surface that matters. Cut it and the wall with a cutter whose corners are still sharp, and break

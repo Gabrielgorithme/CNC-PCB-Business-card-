@@ -133,8 +133,8 @@ def spring(cx, cy, flip=1, label=None):
          f'<path d="M{cx-126},{cy-30} A130,130 0 0 1 {cx+30},{cy-126}" stroke="#2a2e33" stroke-width="5" fill="none" opacity=".35"/>']
     for k in range(3):
         d = pl(spiral_pts(cx, cy, 62, 118, 205, k * 120 - 90, flip))
-        o.append(f'<path d="{d}" fill="none" stroke="{CUT}" stroke-width="10" stroke-linecap="round"/>')
-        o.append(f'<path d="{d}" fill="none" stroke="#e9ecef" stroke-width="1" opacity=".5" transform="translate(1.6,1.8)" stroke-linecap="round"/>')
+        o.append(f'<path d="{d}" fill="none" stroke="{CUT}" stroke-width="20" stroke-linecap="round"/>')   # 2 mm slots
+        o.append(f'<path d="{d}" fill="none" stroke="#e9ecef" stroke-width="1" opacity=".5" transform="translate(3.2,3.6)" stroke-linecap="round"/>')
     o.append(f'<circle cx="{cx}" cy="{cy}" r="48" fill="url(#boss)" stroke="#5d646c" stroke-width="1.2"/>')
     if label: o.append(T(cx, cy + 13, label, 2.6, ENG, "middle", 0.7))
     return "\n".join(o)
